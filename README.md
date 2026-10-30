@@ -1,180 +1,101 @@
 # Gestión y análisis de compromisos presupuestales de Bogotá D. C. (2022–2025)
 
-**Proyecto final — Herramientas de Gestión de Datos**
+**Proyecto final — Herramientas de Gestión de Datos**  
+**Equipo 7:** Angie Coba, Luis Flórez y Jhon Fonseca.
 
-Autores: Angie Coba, Luis Florez, Jhon Fonseca (Equipo 7)
+## 1. Problema, contexto y propósito
 
-## 1. Descripción del proyecto
+¿Cómo se distribuyen los compromisos presupuestales del Distrito, cómo cambian entre 2022 y 2025 y a qué ritmo se registran durante cada vigencia? El proyecto organiza datos públicos de la Secretaría Distrital de Hacienda de Bogotá para comparar entidades, tipos de gasto, rubros, programas y períodos mediante un modelo de datos y visualizaciones.
 
-Este proyecto desarrolla una solución de gestión y análisis de datos para estudiar los compromisos presupuestales de entidades distritales de Bogotá D. C. durante el periodo 2022–2025.
+**Objetivo general:** transformar datos presupuestales publicados en información estructurada y consultable para apoyar el seguimiento, la transparencia y el análisis de prioridades del gasto.
 
-La solución integra fuentes de datos presupuestales, un modelo de datos relacional y dimensional, procesos reproducibles de auditoría y transformación con Python, y un tablero de inteligencia de negocios desarrollado en Power BI.
+**Preguntas de negocio:** ¿cuánto se comprometió anualmente? ¿Qué proporción corresponde a inversión, funcionamiento y deuda? ¿Qué entidades concentran los compromisos? ¿Cómo varía el ritmo mensual y qué cambios se observan entre vigencias? ¿Qué programas y planes de desarrollo se pueden identificar en los años con ese detalle publicado?
 
-Su propósito es facilitar la exploración de la información presupuestal por vigencia, entidad, unidad ejecutora, programa y rubro, y demostrar cómo el modelamiento, la calidad de datos y la inteligencia de negocios contribuyen a convertir registros administrativos en información útil para el análisis y la toma de decisiones.
+## 2. Origen, alcance y estructura de los datos
 
-## 2. Objetivos
+**Fuente declarada:** Secretaría Distrital de Hacienda; conjunto «Informe de Gastos e Inversiones» del portal de Datos Abiertos de Bogotá. Fuente de consulta: https://datosabiertos.bogota.gov.co/dataset/informe-de-gastos-e-inversiones-bogota . Los importes se presentan en **pesos colombianos corrientes (COP)**; las comparaciones interanuales no están ajustadas por inflación.
 
-**Objetivo general**
+La tabla integrada `datos/originales/Hechos_Compromisos.csv` contiene **514.968 registros**, **10 campos**, **44 códigos de entidad**, **95 unidades ejecutoras**, **1.308 identificadores de programa** y **3.098 identificadores de rubro**. Registros por año: 2022 (**132.372**), 2023 (**125.196**), 2024 (**165.228**) y 2025 (**92.172**). Se dispone de los doce meses de cada año. Estos recuentos describen la tabla integrada, no una medición de cobertura universal de todo el presupuesto distrital.
 
-Diseñar y documentar una solución de gestión de datos que permita organizar, validar y analizar los compromisos presupuestales de Bogotá D. C. para las vigencias 2022–2025, aplicando principios de modelamiento de datos, inteligencia de negocios y calidad de información.
+**Variables de hechos:** `vigencia`, `mes`, `fecha`, `entidad_cod`, `unidad_ejecutora`, `programa_sk`, `rubro_sk`, `linea_id`, `compromiso_acumulado` y `compromiso_mes`. El identificador `linea_id` conserva la trazabilidad de la línea de origen del proceso ETL.
 
-**Objetivos específicos**
+**Regla central:** `compromiso_mes = compromiso_acumulado(mes) - compromiso_acumulado(mes anterior)` dentro de cada línea de origen; en enero, el mes anterior equivale a cero. El acumulado **no debe sumarse entre meses** para calcular un total anual; para ese propósito se utiliza la suma de `compromiso_mes` o el acumulado de diciembre a nivel de línea. Un flujo mensual negativo puede representar ajustes, liberaciones o anulaciones; requiere interpretación presupuestal y no constituye automáticamente un error.
 
-1. Estructurar los datos presupuestales mediante un modelo relacional y dimensional que facilite su consulta y análisis.
-2. Implementar procedimientos reproducibles de lectura, normalización, validación y transformación de información presupuestal.
-3. Facilitar el análisis histórico mediante una tabla de hechos y un dashboard de Power BI.
-4. Identificar limitaciones y oportunidades de mejora relacionadas con la completitud, unicidad, consistencia y trazabilidad de los datos.
+**Limitaciones:** el conjunto corresponde a compromisos, no a pagos, giros ni apropiaciones; no permite afirmar un porcentaje de ejecución presupuestal sin otras fuentes. El archivo 2025 no publica el mismo detalle de programa/proyecto que años anteriores. La codificación de rubros y programas requiere diccionarios y revisión de su vigencia histórica. Los datos no están deflactados.
 
-## 3. Fuente y alcance
+## 3. Áreas de conocimiento implementadas y evidencias de la rúbrica
 
-El proyecto utiliza información del conjunto de datos **Informe de Gastos e Inversiones de Bogotá D. C.**, publicado en el portal de Datos Abiertos de Bogotá y asociado a información del sistema BogData.
+| Área / criterio | Aplicación en el proyecto | Evidencia |
+|---|---|---|
+| **Modelamiento de datos** | Modelo conceptual, diseño lógico normalizado (3FN), modelo dimensional en estrella y DDL de referencia para PostgreSQL. | [Conceptual](modelos/fin_conceptual.png), [Lógico](modelos/fin_logico.png), [Estrella](modelos/fin_estrella.png), [SQL](sql/modelo_fisico_presupuesto_postgresql.sql) |
+| **Inteligencia de negocios / almacén de datos** | Tabla de hechos mensual, dimensiones de entidad, rubro, programa y calendario; visualizaciones y filtros en Power BI. | [Archivo Power BI](dashboard/Proyecto%20final%20HD%20Final.pbix), [captura del tablero](dashboard/capturas/dashboard_principal.png), [captura del modelo](dashboard/capturas/modelo_dimensional.png) |
+| **Calidad y preparación de datos** | Auditoría de codificación, encabezados, valores monetarios, unicidad, completitud, consistencia temporal y conciliación de exportaciones para 2025. | [Notebook](notebooks/01_auditoria_eda.ipynb), [calidad](datos/procesados/reporte_calidad_2025.csv), [variaciones](datos/procesados/reporte_variaciones_2025.csv) |
+| **Trazabilidad y documentación** | Publicación de archivos, scripts, dependencias, resultados y advertencias metodológicas. | [Scripts](scripts/), [Dependencias](requirements.txt), [revisión de coherencia](docs/verificacion_coherencia.md) |
 
-Fuente de referencia: https://datosabiertos.bogota.gov.co/dataset/informe-de-gastos-e-inversiones-bogota
+**Estado de implementación:** el PBIX y el notebook son artefactos existentes. El SQL es un **diseño físico propuesto**; no se presenta como una base PostgreSQL instalada o poblada, ya que no se adjuntan pruebas de despliegue. Los scripts históricos conservan algunas rutas de ejecución originales y su reproducción integral requiere disponer de todos los CSV anuales y ajustar el directorio de trabajo.
 
-La tabla de hechos utilizada para el análisis histórico comprende cuatro vigencias:
+## 4. Arquitectura y modelos
 
-| Vigencia | Registros |
-|---|---:|
-| 2022 | 132.372 |
-| 2023 | 125.196 |
-| 2024 | 165.228 |
-| 2025 | 92.172 |
-| **Total** | **514.968** |
+![Modelo conceptual](modelos/fin_conceptual.png)
 
-La cobertura de la tabla de hechos incluye 44 códigos de entidad, 95 unidades ejecutoras, 1.308 identificadores de programa y 3.098 identificadores de rubro.
+![Modelo lógico normalizado](modelos/fin_logico.png)
 
-Estas cantidades describen la estructura del conjunto de datos y no representan, por sí mismas, montos de ejecución presupuestal.
+![Modelo dimensional en estrella](modelos/fin_estrella.png)
 
-## 4. Áreas de conocimiento aplicadas
+El **modelo conceptual** representa las relaciones del negocio. El **modelo lógico** propone separación de catálogos y registros de compromiso. El **modelo estrella** organiza la consulta analítica alrededor de una tabla de hechos relacionada con cuatro dimensiones: entidad, rubro, programa y calendario. La tabla de hechos también conserva la unidad ejecutora y el identificador de línea.
 
-### 4.1. Modelamiento de datos
+La granularidad observada de la tabla exportada es **una línea de origen × mes**. La combinación `vigencia + unidad_ejecutora + programa_sk + rubro_sk + mes` **no es única en todos los registros**; por eso, no debe utilizarse como clave primaria sin consolidación o sin `linea_id`. Véase la revisión técnica y la propuesta de ajuste en `docs/verificacion_coherencia.md`.
 
-Se elaboró un archivo SQL que propone dos capas:
+## 5. ETL, auditoría y reproducibilidad
 
-- **Capa normalizada (`presupuesto`):** contempla entidades, unidades ejecutoras, periodos, planes de desarrollo, programas, tipos de gasto, conceptos, rubros y compromisos mensuales.
-- **Capa analítica (`dw`):** propone un esquema estrella con dimensiones de entidad, programa, rubro y calendario, relacionadas con una tabla central de compromisos.
+1. Los CSV originales se leen y normalizan, preservando identificadores como texto y los ceros a la izquierda.
+2. Se interpretan las columnas mensuales como acumulados y se calculan diferencias consecutivas.
+3. Se construyen dimensiones y hechos para el modelo analítico.
+4. Se valida la integridad de la exportación y se documentan novedades de calidad.
+5. Se construye y consulta el tablero en Power BI.
 
-El modelo busca organizar las relaciones entre las variables presupuestales y facilitar consultas analíticas.
+**Auditoría 2025:** se identificaron **7.681 líneas presupuestales válidas** y se generaron **92.172 registros mensuales**. La auditoría detectó guiones como marcadores de ausencia y **838 disminuciones mensuales** en el archivo transformado; estos casos se conservan para análisis. La exportación verificó igualdad entre la suma de diciembre del formato ancho y largo: **36.256.796.365.772 COP**. Los archivos procesados y reportes están en `datos/procesados/`.
 
-### 4.2. Inteligencia de negocios
+**Auditoría básica de la tabla integrada 2022–2025:** 514.968 filas, sin duplicados exactos ni nulos en los dos campos monetarios. La revisión adicional encontró **3.132 registros duplicados respecto de la clave natural propuesta** (no son filas idénticas), lo cual exige incluir la identidad de la línea de origen. Se registraron **5.418 valores mensuales negativos**. Los totales anuales calculados de `compromiso_mes`, expresados en billones de COP, son aproximadamente **27,476 (2022)**, **30,366 (2023)**, **31,758 (2024)** y **36,257 (2025)**.
 
-Se dispone de una tabla de hechos histórica denominada `Hechos_Compromisos.csv` y de un dashboard desarrollado en Power BI.
+**Reproducción parcial del notebook 2025:**
 
-La tabla de hechos contiene las siguientes variables:
+```powershell
+python -m pip install -r requirements.txt
+```
 
-`vigencia`, `mes`, `fecha`, `entidad_cod`, `unidad_ejecutora`, `programa_sk`, `rubro_sk`, `linea_id`, `compromiso_acumulado` y `compromiso_mes`.
+Abrir `notebooks/01_auditoria_eda.ipynb` en VS Code o Jupyter y ejecutar todas las celdas desde la raíz del repositorio. El notebook lee `datos/originales/informe-de-gastos-e-inversiones.bogota.d.c.2025-12.csv` y genera archivos en `datos/procesados/`.
 
-Esta estructura permite organizar el análisis por tiempo y por dimensiones institucionales y presupuestales, mediante las relaciones configuradas en el modelo BI.
+**ETL histórico:** `scripts/build.py` lee archivos bajo `raw/g20*.csv` y produce `out/tablas.pkl`; `scripts/export.py` exporta el kit de Power BI. Para reproducirlo debe prepararse esa estructura con los CSV 2022–2025 y revisar sus codificaciones. No debe ejecutarse suponiendo que toma automáticamente los archivos de `datos/originales/`. `scripts/mockup.py` produce una **maqueta estática de referencia**, no sustituye el archivo PBIX interactivo.
 
-El archivo `.pbix` se encuentra en la carpeta `dashboard/`.
+## 6. Tablero e interpretación de resultados
 
-### Modelo dimensional implementado en Power BI
+![Tablero Power BI](dashboard/capturas/dashboard_principal.png)
 
-El modelo analítico se organiza mediante un esquema estrella, con una tabla central de hechos (`Hechos`) y cuatro dimensiones: `Entidad`, `Rubro`, `Programa` y `Calendario`. Las relaciones uno a muchos permiten analizar los compromisos presupuestales desde diferentes perspectivas institucionales, temporales y presupuestales.
+El tablero permite explorar compromisos por vigencia, entidad, tipo y concepto de gasto, además de comparar ritmos mensuales. El archivo interactivo se encuentra en `dashboard/Proyecto final HD Final.pbix`. La imagen adicional `dashboard/capturas/fin_dashboard_referencia.png` es una maqueta ilustrativa generada con Python, no una captura del PBIX.
 
-Adicionalmente, la tabla `_Medidas` centraliza los indicadores calculados mediante DAX, favoreciendo la reutilización de medidas y la consistencia de las visualizaciones.
+**Hallazgos descriptivos:** los compromisos anuales integrados aumentan de aproximadamente **27,5 billones de COP en 2022** a **36,3 billones en 2025**, una variación nominal cercana al **32 %**. El tablero muestra para 2025 una participación aproximada de **82 % en inversión** y una concentración cercana al **69,5 % en cinco entidades**. Estos resultados permiten formular preguntas de seguimiento, pero no demostrar eficacia del gasto ni resultados de política pública.
 
-![Modelo dimensional de Power BI](dashboard/capturas/modelo_dimensional.png)
+**Decisiones que puede apoyar:** priorizar revisiones por entidad y rubro, identificar meses de concentración de compromisos, comparar la composición del gasto y detectar movimientos negativos que merezcan verificación documental.
 
-### Dashboard de inteligencia de negocios
+## 7. Reflexión sobre gestión de datos
 
-El dashboard permite explorar los compromisos presupuestales de Bogotá D. C. durante 2022–2025, utilizando filtros por vigencia, tipo de gasto, tipo de entidad y entidad.
+La utilidad del tablero depende de una cadena verificable: fuente identificable, reglas de transformación explícitas, claves estables, relaciones consistentes, controles de calidad y límites de interpretación. La revisión de granularidad demostró que un modelo aparentemente válido puede fallar al implementarse si no conserva la identidad de cada línea. Documentar este hallazgo fortalece la gobernanza, evita duplicaciones y hace más confiables los indicadores. El valor del proyecto está tanto en los gráficos como en la trazabilidad que permite explicar de dónde proviene cada cifra.
 
-La solución presenta indicadores de compromisos acumulados, variación anual, participación de inversión y concentración del gasto, además de visualizaciones sobre composición presupuestal, evolución mensual, entidades y conceptos de gasto.
+## 8. Organización del repositorio
 
-![Dashboard principal de compromisos presupuestales](dashboard/capturas/dashboard_principal.png)
+```text
+datos/originales/       Fuentes CSV y dimensiones de Power BI
+datos/procesados/       Exportaciones y reportes de auditoría 2025
+notebooks/              Auditoría exploratoria y controles
+sql/                    Diseño físico PostgreSQL y propuesta revisada
+modelos/                Diagramas conceptual, lógico y estrella
+scripts/                Código ETL y generación de evidencias
+dashboard/              Power BI y capturas
+ docs/                   Informe de coherencia técnica
+requirements.txt        Dependencias del notebook
+```
 
-**Ejemplo de lectura — vigencia 2025:** el tablero presenta compromisos aproximados de $36,3 billones, una variación anual del 14,2 %, participación de inversión del 82,0 % y concentración del 69,5 % en las cinco principales entidades, según las medidas y filtros configurados en Power BI.
+## 9. Observaciones de integridad y alcance
 
-### 4.3. Calidad y transformación de datos
-
-Se desarrolló el notebook `notebooks/01_auditoria_eda.ipynb`, enfocado en el archivo presupuestal con corte a diciembre de 2025.
-
-El proceso comprende:
-
-- Lectura del CSV con codificación `cp1252`.
-- Normalización de encabezados y campos descriptivos.
-- Exclusión de una fila informativa que no corresponde a un registro presupuestal.
-- Identificación de celdas vacías y valores representados mediante guiones.
-- Verificación de unicidad de la clave de negocio.
-- Conversión controlada de valores monetarios.
-- Análisis de variaciones entre compromisos acumulados consecutivos.
-- Exportación de archivos procesados y reportes de calidad.
-- Validaciones de integridad entre las tablas transformadas.
-
-## 5. Resultados de calidad de datos: vigencia 2025
-
-La auditoría del archivo original produjo los siguientes resultados:
-
-| Indicador | Resultado |
-|---|---:|
-| Filas leídas inicialmente | 7.682 |
-| Filas informativas excluidas | 1 |
-| Registros presupuestales válidos | 7.681 |
-| Columnas | 18 |
-| Entidades distintas | 44 |
-| Rubros distintos | 2.198 |
-| Duplicados exactos | 0 |
-| Duplicados con clave original | 128 |
-| Duplicados con clave ampliada | 0 |
-| Registros con alguna disminución mensual | 669 |
-| Eventos de disminución mensual | 838 |
-
-La clave original `vigencia + codigo_entidad + codigo_rubro` no permitía identificar de manera única todos los registros.
-
-La clave ampliada `vigencia + codigo_entidad + nombre_de_la_entidad + codigo_rubro` eliminó las duplicaciones detectadas en el archivo analizado. La revisión mostró que diferentes unidades ejecutoras podían compartir el mismo código institucional y rubro.
-
-En cuanto a completitud, los registros sin valor numérico representaron el 76,37 % en enero y el 19,05 % en diciembre. Los valores no numéricos identificados correspondieron a celdas vacías y guiones, sin encontrar otros símbolos no convertibles.
-
-Se identificaron 669 registros con al menos una disminución entre meses consecutivos. Estos casos se conservaron como alertas analíticas, sin clasificarlos automáticamente como errores presupuestales.
-
-## 6. Transformación y validación
-
-El proceso ETL generó:
-
-| Archivo | Finalidad |
-|---|---|
-| `compromisos_2025_limpio.csv` | Registros normalizados y valores monetarios convertidos |
-| `compromisos_2025_mensual.csv` | Estructura mensual en formato largo |
-| `reporte_calidad_2025.csv` | Indicadores de completitud y validez |
-| `reporte_variaciones_2025.csv` | Variaciones y disminuciones mensuales |
-
-Se verificó que la transformación conservara los 7.681 registros presupuestales y produjera 92.172 filas mensuales, equivalentes a doce meses por registro.
-
-También se comprobó que el total de compromisos acumulados de diciembre coincidiera entre los formatos ancho y largo: **$36.256.796.365.772 COP**. Este resultado corresponde a la suma calculada sobre el archivo auditado y requiere contrastarse con los totales oficiales antes de utilizarse como cifra presupuestal consolidada.
-
-## 7. Reflexión sobre la gestión de datos
-
-El proyecto evidencia que la utilidad de un dashboard depende de decisiones previas sobre la estructura, interpretación y calidad de los datos.
-
-La revisión de claves permitió identificar que una entidad puede tener varias unidades ejecutoras, lo cual influye directamente en la granularidad del modelo y en la confiabilidad de las agregaciones.
-
-Asimismo, el tratamiento diferenciado de valores vacíos, guiones y disminuciones evitó introducir supuestos no verificados en la información presupuestal.
-
-La integración de modelamiento, auditoría y visualización constituye una base para fortalecer la trazabilidad, la transparencia y el análisis de información pública.
-
-## 8. Matriz de cumplimiento de la evaluación
-
-| Criterio | Evidencia |
-|---|---|
-| Contexto y propósito del conjunto de datos | Secciones 1, 2 y 3 |
-| Origen y cobertura de la información | Sección 3 y carpeta `datos/originales/` |
-| Descripción de variables y volumen | Secciones 3 y 4 |
-| Modelamiento de datos | Archivo `sql/modelo_fisico_presupuesto_postgresql.sql` |
-| Inteligencia de negocios | Carpeta `dashboard/` y tabla `Hechos_Compromisos.csv` |
-| Calidad y transformación | Notebook `notebooks/01_auditoria_eda.ipynb` |
-| Evidencias de resultados | Secciones 5 y 6; archivos en `datos/procesados/` |
-| Reflexión | Seccion 7  |
-
-## 9. Reproducibilidad
-
-Para reproducir la auditoría de 2025:
-
-1. Clonar el repositorio.
-2. Instalar Python y las dependencias indicadas en `requirements.txt`.
-3. Abrir `notebooks/01_auditoria_eda.ipynb` en Visual Studio Code con la extensión Jupyter.
-4. Seleccionar el kernel de Python.
-5. Ejecutar las celdas en orden.
-6. Consultar los archivos generados en `datos/procesados/`.
-
-Para explorar la solución de inteligencia de negocios, abrir el archivo `.pbix` con Power BI Desktop. La actualización del modelo puede requerir configurar nuevamente las rutas de los archivos de origen.
+Consultar [Verificación de coherencia](docs/verificacion_coherencia.md) para las diferencias detectadas entre el SQL, el ETL y el modelo de Power BI. Los diagramas son evidencia de **diseño**; la captura de Power BI es evidencia de **relaciones configuradas**; la ejecución real del SQL en PostgreSQL queda pendiente de verificación. Esta separación evita atribuir al proyecto resultados no demostrados.
