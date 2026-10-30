@@ -98,3 +98,23 @@ requirements.txt        Dependencias del notebook
 ## 9. Observaciones de integridad y alcance
 
 Consultar [Verificación de coherencia](docs/verificacion_coherencia.md) para las diferencias detectadas entre el SQL, el ETL y el modelo de Power BI. Los diagramas son evidencia de **diseño**; la captura de Power BI es evidencia de **relaciones configuradas**; la ejecución real del SQL en PostgreSQL queda pendiente de verificación. Esta separación evita atribuir al proyecto resultados no demostrados.
+
+## 10. Presentación de sustentación
+
+La presentación final del proyecto desarrolla los componentes
+solicitados en la rúbrica de evaluación:
+
+1. Contexto y objetivos del dataset.
+2. Descripción, cobertura y limitaciones de los datos.
+3. Aplicación de modelado de datos:
+   - Modelo conceptual.
+   - Modelo lógico.
+   - Modelo físico.
+4. Aplicación de Business Intelligence y Data Warehousing:
+   - Preguntas de negocio.
+   - Indicadores presupuestales.
+   - Modelo dimensional.
+   - Dashboard en Power BI.
+5. Hallazgos, decisiones y valor del gobierno de datos.
+
+**[Consultar presentación final](presentacion/Sustentacion_Proyecto_Final_Bogota_2022_2025.pptx)**
