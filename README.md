@@ -30,9 +30,8 @@ La tabla integrada `datos/originales/Hechos_Compromisos.csv` contiene **514.968 
 | **Modelamiento de datos** | Modelo conceptual, diseño lógico normalizado (3FN), modelo dimensional en estrella y DDL de referencia para PostgreSQL. | [Conceptual](modelos/fin_conceptual.png), [Lógico](modelos/fin_logico.png), [Estrella](modelos/fin_estrella.png), [SQL](sql/modelo_fisico_presupuesto_postgresql.sql) |
 | **Inteligencia de negocios / almacén de datos** | Tabla de hechos mensual, dimensiones de entidad, rubro, programa y calendario; visualizaciones y filtros en Power BI. | [Archivo Power BI](dashboard/Proyecto%20final%20HD%20Final.pbix), [captura del tablero](dashboard/capturas/dashboard_principal.png), [captura del modelo](dashboard/capturas/modelo_dimensional.png) |
 | **Calidad y preparación de datos** | Auditoría de codificación, encabezados, valores monetarios, unicidad, completitud, consistencia temporal y conciliación de exportaciones para 2025. | [Notebook](notebooks/01_auditoria_eda.ipynb), [calidad](datos/procesados/reporte_calidad_2025.csv), [variaciones](datos/procesados/reporte_variaciones_2025.csv) |
-| **Trazabilidad y documentación** | Publicación de archivos, scripts, dependencias, resultados y advertencias metodológicas. | [Scripts](scripts/), [Dependencias](requirements.txt), [revisión de coherencia](docs/verificacion_coherencia.md) |
+| **Trazabilidad y documentación** | Publicación de archivos, scripts, dependencias, resultados y advertencias metodológicas. | [Scripts](scripts/), [Dependencias](requirements.txt) |
 
-**Estado de implementación:** el PBIX y el notebook son artefactos existentes. El SQL es un **diseño físico propuesto**; no se presenta como una base PostgreSQL instalada o poblada, ya que no se adjuntan pruebas de despliegue. Los scripts históricos conservan algunas rutas de ejecución originales y su reproducción integral requiere disponer de todos los CSV anuales y ajustar el directorio de trabajo.
 
 ## 4. Arquitectura y modelos
 
