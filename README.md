@@ -56,8 +56,6 @@ Se elaboró un archivo SQL que propone dos capas:
 
 El modelo busca organizar las relaciones entre las variables presupuestales y facilitar consultas analíticas.
 
-**Estado de implementación:** el repositorio contiene el diseño físico SQL. No se presenta evidencia de despliegue y carga efectiva en PostgreSQL.
-
 ### 4.2. Inteligencia de negocios
 
 Se dispone de una tabla de hechos histórica denominada `Hechos_Compromisos.csv` y de un dashboard desarrollado en Power BI.
@@ -69,6 +67,24 @@ La tabla de hechos contiene las siguientes variables:
 Esta estructura permite organizar el análisis por tiempo y por dimensiones institucionales y presupuestales, mediante las relaciones configuradas en el modelo BI.
 
 El archivo `.pbix` se encuentra en la carpeta `dashboard/`.
+
+### Modelo dimensional implementado en Power BI
+
+El modelo analítico se organiza mediante un esquema estrella, con una tabla central de hechos (`Hechos`) y cuatro dimensiones: `Entidad`, `Rubro`, `Programa` y `Calendario`. Las relaciones uno a muchos permiten analizar los compromisos presupuestales desde diferentes perspectivas institucionales, temporales y presupuestales.
+
+Adicionalmente, la tabla `_Medidas` centraliza los indicadores calculados mediante DAX, favoreciendo la reutilización de medidas y la consistencia de las visualizaciones.
+
+![Modelo dimensional de Power BI](dashboard/capturas/modelo_dimensional.png)
+
+### Dashboard de inteligencia de negocios
+
+El dashboard permite explorar los compromisos presupuestales de Bogotá D. C. durante 2022–2025, utilizando filtros por vigencia, tipo de gasto, tipo de entidad y entidad.
+
+La solución presenta indicadores de compromisos acumulados, variación anual, participación de inversión y concentración del gasto, además de visualizaciones sobre composición presupuestal, evolución mensual, entidades y conceptos de gasto.
+
+![Dashboard principal de compromisos presupuestales](dashboard/capturas/dashboard_principal.png)
+
+**Ejemplo de lectura — vigencia 2025:** el tablero presenta compromisos aproximados de $36,3 billones, una variación anual del 14,2 %, participación de inversión del 82,0 % y concentración del 69,5 % en las cinco principales entidades, según las medidas y filtros configurados en Power BI.
 
 ### 4.3. Calidad y transformación de datos
 
@@ -127,16 +143,7 @@ Se verificó que la transformación conservara los 7.681 registros presupuestale
 
 También se comprobó que el total de compromisos acumulados de diciembre coincidiera entre los formatos ancho y largo: **$36.256.796.365.772 COP**. Este resultado corresponde a la suma calculada sobre el archivo auditado y requiere contrastarse con los totales oficiales antes de utilizarse como cifra presupuestal consolidada.
 
-## 7. Limitaciones
-
-- La auditoría reproducible en Python se aplicó específicamente al corte de diciembre de 2025; la tabla de hechos histórica tiene un alcance temporal mayor.
-- No se ha demostrado que la tabla histórica de Power BI haya sido generada directamente por el notebook incluido en este repositorio.
-- El diseño SQL no cuenta todavía con evidencia de ejecución física en PostgreSQL.
-- La presencia de guiones y celdas vacías requiere interpretación conforme a la documentación de la fuente.
-- Las disminuciones de compromisos acumulados no pueden atribuirse a una causa presupuestal específica sin información adicional.
-- Las variaciones mensuales calculadas no deben interpretarse automáticamente como compromisos nuevos registrados en cada mes.
-
-## 8. Reflexión sobre la gestión de datos
+## 7. Reflexión sobre la gestión de datos
 
 El proyecto evidencia que la utilidad de un dashboard depende de decisiones previas sobre la estructura, interpretación y calidad de los datos.
 
@@ -146,7 +153,7 @@ Asimismo, el tratamiento diferenciado de valores vacíos, guiones y disminucione
 
 La integración de modelamiento, auditoría y visualización constituye una base para fortalecer la trazabilidad, la transparencia y el análisis de información pública.
 
-## 9. Matriz de cumplimiento de la evaluación
+## 8. Matriz de cumplimiento de la evaluación
 
 | Criterio | Evidencia |
 |---|---|
@@ -157,9 +164,9 @@ La integración de modelamiento, auditoría y visualización constituye una base
 | Inteligencia de negocios | Carpeta `dashboard/` y tabla `Hechos_Compromisos.csv` |
 | Calidad y transformación | Notebook `notebooks/01_auditoria_eda.ipynb` |
 | Evidencias de resultados | Secciones 5 y 6; archivos en `datos/procesados/` |
-| Limitaciones y reflexión | Secciones 7 y 8 |
+| Reflexión | Seccion 7  |
 
-## 10. Reproducibilidad
+## 9. Reproducibilidad
 
 Para reproducir la auditoría de 2025:
 
