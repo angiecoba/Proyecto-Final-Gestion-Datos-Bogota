@@ -1,0 +1,12 @@
+﻿mes,mes_anterior,comparaciones_validas,disminuciones,aumentos,sin_cambio,monto_disminuciones
+febrero,enero,1815,3,1302,510,-87225668
+marzo,febrero,2705,10,1732,963,-86903514
+abril,marzo,3200,16,1825,1359,-367293928
+mayo,abril,3595,29,1848,1718,-4599315136
+junio,mayo,3990,31,1857,2102,-4981859726
+julio,junio,4338,60,1912,2366,-4024580085
+agosto,julio,4604,50,1989,2565,-55697040562
+septiembre,agosto,4888,59,2014,2815,-17714138074
+octubre,septiembre,5131,100,2167,2864,-12802892348
+noviembre,octubre,5482,89,2060,3333,-11390640089
+diciembre,noviembre,5889,391,2484,3014,-11657257965
